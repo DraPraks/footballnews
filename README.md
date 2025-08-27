@@ -6,4 +6,4 @@ Class : PBP KKI
 
 Hobby : Assembly coding
 
-Major : Computer Science (Inter)
+Major : Computer Science (Inter) 
