@@ -3,10 +3,22 @@ from django.http import HttpResponse
 from django.core import serializers
 from main.forms import NewsForm
 from main.models import News
+from django.db.utils import ProgrammingError, OperationalError
+
+
+def _safe_all_news():
+    """Return all News objects or an empty queryset if the table doesn't exist yet.
+
+    This prevents the site from crashing on fresh deployments before migrations run.
+    """
+    try:
+        return News.objects.all()
+    except (ProgrammingError, OperationalError):
+        return News.objects.none()
 
 
 def show_main(request):
-    news_list = News.objects.all()
+    news_list = _safe_all_news()
 
     context = {
         'npm': '2406453530',
@@ -41,13 +53,13 @@ def show_news(request, id):
 
 
 def show_xml(request):
-    news_list = News.objects.all()
+    news_list = _safe_all_news()
     xml_data = serializers.serialize("xml", news_list)
     return HttpResponse(xml_data, content_type="application/xml")
 
 
 def show_json(request):
-    news_list = News.objects.all()
+    news_list = _safe_all_news()
     json_data = serializers.serialize("json", news_list)
     return HttpResponse(json_data, content_type="application/json")
 
